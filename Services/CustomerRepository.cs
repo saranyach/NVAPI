@@ -13,11 +13,17 @@ namespace NVAPI.Services
     {
         public List<Customer> GetCustomers()
         {
-            string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + @"\Services\Data\Customers.json");
-            List<Customer> customers = JsonConvert.DeserializeObject<List<Customer>>(json);
-            return customers;
-            //fetch from text
+            try
+            {
+                string json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + @"\Services\Data\Customers.json");
+                List<Customer> customers = JsonConvert.DeserializeObject<List<Customer>>(json);
+                return customers;
+            }
+            catch (Exception)
+            {
 
+                throw;
+            }
         }
 
         public void SaveCustomer(Customer customer)
@@ -34,7 +40,6 @@ namespace NVAPI.Services
             }
             catch (Exception)
             {
-
                 throw;
             }
         }

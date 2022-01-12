@@ -22,7 +22,14 @@ namespace NVAPI.Controllers
         [HttpGet]
         public List<Customer> Get()
         {
-            return customerRepository.GetCustomers();
+            try
+            {
+                return customerRepository.GetCustomers();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         // GET api/<controller>/5
@@ -37,39 +44,37 @@ namespace NVAPI.Controllers
         public HttpResponseMessage Post(Customer customer)
         {
             HttpResponseMessage responseMessage;
-            
-
-            try
+            if (ModelState.IsValid)
             {
-                if((customer.EmailAddress == null) ||(IsValidEmailAddress(customer.EmailAddress)))
+                try
                 {
-                    responseMessage = new HttpResponseMessage(HttpStatusCode.BadRequest);
+                    customerRepository.SaveCustomer(customer);
+                    responseMessage = new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent("Customer " + customer.FirstName + " " + customer.LastName + " added.")
+                    };
                     return responseMessage;
                 }
-                customerRepository.SaveCustomer(customer);
-                responseMessage = new HttpResponseMessage(HttpStatusCode.OK);
-                return responseMessage;
+                catch (Exception)
+                {
+                    responseMessage = new HttpResponseMessage(HttpStatusCode.InternalServerError);
+                    return responseMessage;
+                }
             }
-            catch (Exception)
-            {
-                responseMessage = new HttpResponseMessage(HttpStatusCode.InternalServerError);
-                return responseMessage;
-            }
-        }
+            return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState);
 
-        private bool IsValidEmailAddress(string emailAddress)
-        {
-            return !(new EmailAddressAttribute().IsValid(emailAddress));
         }
-
+      
         // PUT api/<controller>/5
         public void Put(int id, [FromBody] string value)
         {
+            
         }
 
         // DELETE api/<controller>/5
         public void Delete(int id)
         {
+            
         }
     }
 }
